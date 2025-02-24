@@ -3,9 +3,61 @@
 <head>
     <title>Book Appointment</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .btn-primary {
+            width: 100%;
+            background: #764ba2;
+            border: none;
+            transition: background 0.3s ease-in-out;
+        }
+        .btn-primary:hover {
+            background: #5a3b78;
+        }
+        .time-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .time-picker input {
+            width: 60px;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .time-picker select {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .time-display {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
+    <div class="container">
         <h2>Book Appointment</h2>
         <form method="post">
             {% csrf_token %}
@@ -24,10 +76,52 @@
             </div>
             <div class="mb-3">
                 <label for="time" class="form-label">Time</label>
-                <input type="time" name="time" id="time" class="form-control" required>
+                <div class="time-picker">
+                    <!-- Hours Input -->
+                    <input type="number" id="hours" min="1" max="12" placeholder="HH" required>
+                    <!-- Minutes Input -->
+                    <input type="number" id="minutes" min="0" max="59" placeholder="MM" required>
+                    <!-- AM/PM Select -->
+                    <select id="ampm">
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <!-- Hidden Input to Store Time in 24-Hour Format -->
+                <input type="hidden" name="time" id="time" required>
+                <!-- Display Selected Time -->
+                <div class="time-display" id="time-display"></div>
             </div>
             <button type="submit" class="btn btn-primary">Book Appointment</button>
         </form>
     </div>
+
+    <script>
+        // Function to update the hidden time input and display
+        function updateTime() {
+            const hours = document.getElementById('hours').value.padStart(2, '0');
+            const minutes = document.getElementById('minutes').value.padStart(2, '0');
+            const ampm = document.getElementById('ampm').value;
+
+            // Convert to 24-hour format
+            let time24 = '';
+            if (ampm === 'AM') {
+                time24 = `${hours === '12' ? '00' : hours}:${minutes}`;
+            } else {
+                time24 = `${hours === '12' ? '12' : String(Number(hours) + 12)}:${minutes}`;
+            }
+
+            // Update hidden input
+            document.getElementById('time').value = time24;
+
+            // Update displayed time
+            document.getElementById('time-display').textContent = `Selected Time: ${hours}:${minutes} ${ampm}`;
+        }
+
+        // Add event listeners to inputs
+        document.getElementById('hours').addEventListener('input', updateTime);
+        document.getElementById('minutes').addEventListener('input', updateTime);
+        document.getElementById('ampm').addEventListener('change', updateTime);
+    </script>
 </body>
 </html>
